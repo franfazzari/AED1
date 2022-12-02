@@ -1,0 +1,46 @@
+// Pregunta A
+
+pred esPerm(s: seq<ℤ>) {
+    (∀i: ℤ)(0≤i<|s| ⟹L apariciones(s, i) = 1)
+}
+
+aux apariciones(s: seq<T>, e: T): ℤ = #{x ∈ s : x = e}
+
+
+// Pregunta B
+
+pred genera(cadena: seq<seq<ℤ>>, is: seq<ℤ×ℤ>) {
+    |cadena|>0
+    ∧L esPerm(cadena[0])
+    ∧ (∀i: ℤ)(0≤i<|cadena|-1 ⟹L
+        |cadena[i]| = |cadena[i+1]|
+        ∧ esIntercambio(cadena[i], cadena[i+1], (is[i])₀, (is[i])₁)
+    )
+}
+
+pred esIntercambio(viejo: seq<ℤ>, nuevo: seq<ℤ>, i: ℤ, j: ℤ) {
+    0 ≤ i,j < |viejo|
+    ∧L (nuevo[i] = viejo[j] ∧ nuevo[j] = viejo[i])
+    ∧ (∀k: ℤ)(0≤k<|viejo| ∧ k≠i ∧ k≠j ⟹L nuevo[k]=viejo[k])
+}
+
+
+// Pregunta C
+
+proc obtenerIntercambiosQueOrdenan(in s: seq<ℤ>, out is: seq<ℤ×ℤ>) {
+    Pre {
+        esPerm(s)
+    }
+    Post {
+        (∃t: seq<ℤ>)(
+            |t|=|s|
+            ∧ ordenada(t)
+            ∧ (∃cadena: seq<seq<ℤ>>)(
+                |cadena|>0
+                ∧L cadena[0]=s
+                ∧ cadena[|cadena|-1]=t
+                ∧ genera(cadena, is)
+            )
+        )
+    }
+}
