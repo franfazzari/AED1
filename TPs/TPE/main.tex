@@ -1,0 +1,326 @@
+\documentclass[a4paper]{article} 
+
+\setlength{\parskip}{0.1em}
+\newcommand{\tab}{~ \qquad}
+\input{Algo1Macros}
+\usepackage{caratula} 
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\begin{document}
+
+\titulo{TP de Especificaci\'on}
+\subtitulo{An\'alisis Habitacional Argentino}
+\fecha{8 de Septiembre de 2021}
+\materia{Algoritmos y Estructuras de Datos I}
+\grupo{Grupo XX}
+\newcommand{\senial}{\textit{se\~nal}}
+
+
+\integrante{Elisiri, Abril}{007}{bond@mi6.co.uk}
+\integrante{Fazzari, Francisco}{086}{smart@control.org}
+\integrante{Maidana, Juan Martín}{674}{martinmai98@gmail.com}
+
+\maketitle
+
+\section{Problemas}
+
+%-------------------------------------------------------------------------------------------%
+
+\subsection{Ejercicio 1}
+
+%-------------------------------------------------------------------------------------------%
+
+\begin{proc}{encuestaV\'alida}{\In th: eph_h, \In ti: eph_i, \Out result: \bool}{}
+    \pre{esMatriz (th)\wedge esMatriz(ti) \wedge (|th|>0) \wedge (|ti|>0) )}
+    \post{columnasIgualVariablesDehogar (th) \wedge columnasIgualVariablesDeIndividuo (ti) \wedge \\ \indent (paraCadaIndividuoHayHogar(ti,th)) \wedge (paraCadaHogarHayIndividuo(ti,th)) \wedge \\ \indent (noHayHogaresRepetidos(th)) \wedge (noHayIndividuosRepetidos (ti)) \wedge \\ \indent ($mismoAñoyTrimestreDeRelevamiento(th,ti)$)\wedge (hogarConVeinteOMenosHabitantes(ti)) \wedge \\ \indent (mismasOMasHabitacionesDispoQueEnUso(th)) \wedge (rangoDeValoresCorrectosHog(th)) \wedge \\ \indent (rangoDeValoresCorrectosInd(ti))}
+    
+\end{proc}
+
+\vspace{5mm} 
+
+%-------------------------------------------------------------------------------------------%
+
+\subsection{Ejercicio 2}\\
+
+%-------------------------------------------------------------------------------------------%
+
+\begin{proc}{histHabitacional}{\In th: eph_h, \In ti: eph_i, \In region \hspace{1mm}  \Out res: \TLista{\ent}}{}
+    \pre{esEncuestaValida(th,ti)}
+    \post{(\forall i: \ent)(0 \leq i < |res|) \implicaLuego (res[i]= $\sum_{h=0}^{|th|-1}$ \IfThenElse{(th[h][@iv1]=1) \yLuego (th[h][@region]=region) \yLuego \\ (th[h][@iv2]=i)}{1}{0})} 
+\end{proc}
+
+\vspace{5mm} 
+
+%-------------------------------------------------------------------------------------------%
+
+\subsection{Ejercicio 3}\\
+
+%-------------------------------------------------------------------------------------------%
+
+\begin{proc}{laCasaEstaQuedandoChica}{\In th: eph_h, \In ti: eph_i, \Out res: \TLista{\float}}{}
+    \pre{esEncuestaValida(th,ti)}
+    \post{(|res|=6) \wedge ((\forall i: \ent)(1\leq i \leq 6)\implicaLuego((\exists j : \ent)(0 \leq j < |res|) \yLuego \\ \indent (res[j] = proporcionHacinamientoCriticoEnRegion (j+1,ti,th))}
+\end{proc}
+%como las regiones están numeradas de 1 a 6 y las posiciones de res van de 0 a 5 hago que para cada posiciones j de res corresponde la región j+1%
+
+
+\vspace{5mm}
+
+%-------------------------------------------------------------------------------------------%
+
+\subsection{Ejercicio 4}
+
+%-------------------------------------------------------------------------------------------%
+
+\begin{proc}{creceElTeleworkingEnCiudadesGrandes}{\In t1h: eph_h, \In t1i: eph_i, \In t2h: eph_h, \In t2i: eph_i, \Out res: \bool}{}
+    \pre{esEncuestaValida(t1h,t1i) \wedge esEncuestaValida(t2h,t2i) \wedge esEncuestaAnterior (t1h,t2h) \wedge \\
+\indent sonDelMismoTrimestre (t1h,t2h)
+    }
+    \post{res=True \iff (proporcionHaciendoTeleworking(t1h,t1i))<(proporcionHaciendoTeleworking(t2h,t2i))}
+\end{proc} %¿la cantidad total de individuos en ciudades grandes deberia tambien ser solo en casa y depto?%
+
+\vspace{5mm} 
+
+%-------------------------------------------------------------------------------------------%
+
+\subsection{Ejercicio 5}
+
+%-------------------------------------------------------------------------------------------%
+
+\begin{proc}{costoSubsidioMejora}{\In th: eph_h, \In ti: eph_i, \In monto: \ent, \Out res: \ent}{}
+    \pre{esEncuestaValida(th,ti)}
+    \post{res=$\sum_{h=0}^{|th|-1}$ \IfThenElse{(esDeTenenciaPropia (th,h)) \wedge  (cantidadDeHabitacionesParaDormirEnHogar (h,th))< \indent ((cantidadDePersonasEnHogar (h,ti))-2))}{monto}{0}}
+\end{proc}
+
+\vspace{15mm} 
+
+%-------------------------------------------------------------------------------------------%
+
+\section{Predicados y Auxiliares generales}
+
+%-------------------------------------------------------------------------------------------%
+\subsection{Usados en Ejercicio 1}
+%-------------------------------------------------------------------------------------------%
+
+
+\pred {esMatriz}{m:\TLista{\TLista{\ent}}}{\\
+\indent{(\forall i:\ent)(0\leq i < filas (m))\implicaLuego  |m[i]|>0 \wedge (\forall j:\ent)(0\leq j < filas (m))  \implicaLuego |m[i]| =|m[j]| }}
+
+\vspace{5mm} 
+
+\indent \aux{filas}{m: \matriz{\ent}}{\ent}{|m|}
+
+\vspace{5mm}
+
+\pred{columnasIgualVariablesDeIndividuo}{m: \matriz{\ent}} {\\
+\indent(\forall i: \ent)((0 \leq i < |m|) \implicaLuego (|m[i]| = 11)}
+
+\vspace{5mm} 
+
+\pred{columnasIgualVariablesDeHogar}{m: \matriz{\ent}}{ \\
+\indent(\forall i: \ent)((0 \leq i < |m|) \implicaLuego (|m[i]| = 12)}
+
+\vspace{5mm} 
+
+\pred{paraCadaIndividuoHayHogar}{ti: eph_i, th: eph_h}{\\
+\indent(\forall i: \ent)(0 \leq i < |ti|) \implicaLuego((\exists h: \ent)(0 \leq h < |th|) \implicaLuego \\ \indent (ti[i][@indcodusu]=th[h][@hogcodusu]))}
+
+\vspace{5mm} 
+
+\pred{paraCadaHogarHayIndividuo}{ti: eph_i, th: eph_h}{\\
+\indent(\forall h: \ent)(0 \leq h < |th|) \implicaLuego((\exists i: \ent)(0 \leq i < |ti|)  \implicaLuego \\ \indent(ti[i][indcodusu]=th[h][@hogcodusu]))}
+
+\vspace{5mm} 
+
+\pred{noHayHogaresRepetidos}{th: eph_h}{\\
+\indent (\forall h,j: \ent)(0 \leq h,j < |th| \wedge h \neq j) \implicaLuego (th[h][@hogcodusu] \neq th[j][@hogcodusu]) }
+
+\vspace{5mm} 
+
+\pred{noHayIndividuosRepetidos}{ti: eph_i}{\\
+\indent (\forall i,j: \ent)(0 \leq i,j < |ti| \wedge i \neq j) \implicaLuego ((ti[i][@indcodusu] = ti[j][@indcodusu]) \iff \\ 
+\indent(ti[i][@componente] \neq ti[j][@componente])) }
+%Está bien??%
+\vspace{5mm} 
+
+\pred{mismoAñoyTrimestreDeRelevamientoInd}{ti: eph_i}{\\
+\indent (\forall i,j: \ent)(0 \leq i,j < |ti| \wedge i \neq j) \implicaLuego ((ti[i][$@indaño$] = ti[j][$@indaño$]) \yLuego (ti[i][@indtrimestre] = ti[j][@indtrimestre])) }
+
+\vspace{5mm} 
+
+\pred{mismoAñoyTrimestreDeRelevamientoHog}{th: eph_h}{\\
+\indent (\forall h,j: \ent)(0 \leq h,j < |th| \wedge h \neq j) \\ \indent \implicaLuego ((th[h][$@hogaño$]) = (th[j][$@hogaño$])) \yLuego (th[h][@hogtrimestre] = th[j][@hogtrimestre])) }
+
+\vspace{5mm} 
+
+\pred{mismoAñoyTrimestreDeRelevamiento}{th: eph_h ti: eph_I}{\\
+\indent (\forall i,h: \ent)((0 \leq i < |ti|)\wedge(0 \leq h < |th|)) \implicaLuego \\ \indent ((ti[i][$@indaño$]) = (th[h][$@hogaño$])) \yLuego (ti[i][@indtrimestre] = th[h][@hogtrimestre])) }
+%Alcanza? o Tengo que comparar dentro de th y ti que sean iguales?%
+
+\vspace{5mm} 
+
+\pred{hogarConVeinteOMenosHabitantes}{ti: eph_i}{\\
+\indent (\forall i: \ent)(0 \leq i < |ti|) \implicaLuego (ti[i][@componente] \leq 20) }
+
+\vspace{5mm} 
+
+\pred{mismasOMasHabitacionesQueUso}{th: eph_h}{\\
+\indent (\forall h: \ent)(0 \leq h < |th|) \implicaLuego (th[h][@iv2] \geq th[h][@ii2]) }
+
+\vspace{5mm} 
+
+\pred{rangoDeValoresCorrectosHog}{th: eph_h}{\\
+\indent (\forall h: \ent)(0 \leq h < |th|) \implicaLuego ((1 \leq th[h][@hogtrimestre] \leq 4)\yLuego(1 \leq th[h][@ii7] \leq 3)\yLuego(1 \leq th[h][@region] \leq 6)\yLuego \\ 
+\indent (0 \leq th[h][@masmenos500] \leq 1)\yLuego (1 \leq th[h][@IV1] \leq 5)\yLuego(1 \leq th[h][@ii3] \leq 2) \yLuego \\ \indent (-90 \leq th[h][@hoglatitud] \leq 90) \yLuego (-180 \leq th[h][@hoglongitud] \leq 180)) }
+
+\vspace{5mm} 
+
+\pred{rangoDeValoresCorrectosInd}{ti: eph_i}{\\
+\indent (\forall i: \ent)(0 \leq i < |ti|) \implicaLuego ( (1 \leq ti[i][@indtrimestre] \leq 4)\yLuego(1 \leq ti[i][@ch4] \leq 2)\yLuego \\ 
+\indent (0 \leq ti[i][@ch6] )\yLuego(0 \leq ti[i][@niveled] \leq 1)\yLuego (-1 \leq ti[i][@estado] \leq 1)\yLuego(0 \leq ti[i][@catocup] \leq 4)\yLuego\\ 
+\indent(-1 \leq ti[i][Qp47t])\yLuego(1 \leq ti[i][@pp04g] \leq 10) ) }
+
+\vspace{40mm} 
+
+%-------------------------------------------------------------------------------------------%
+\subsection{Usados en Ejercicio 2}
+%-------------------------------------------------------------------------------------------%
+
+\pred{esEncuestaValida}{th: eph_h, ti: eph_i}{\\ \indent (esMatriz(th)) \wedge (esMatriz (ti)) \wedge (|th|>0) \wedge (|ti|>0) \wedge \\ \indent (columnasIgualVariablesDeIndividuo (ti)) \wedge (columnasIgualVariablesDeHogar (th)) \wedge \\ \indent (paraCadaIndividuoHayHogar(ti,th)) \wedge (paraCadaHogarHayIndividuo(ti,th)) \wedge \\ \indent (noHayHogaresRepetidos(th)) \wedge (noHayIndividuosRepetidos (ti)) \wedge \\ \indent ($mismoAñoyTrimestreDeRelevamiento(th,ti)$)\wedge (hogarConVeinteOMenosHabitantes(ti)) \wedge \\ \indent (mismasOMasHabitacionesDispoQueEnUso(th)) \wedge (rangoDeValoresCorrectosHog(th)) \wedge \\ \indent (rangoDeValoresCorrectosInd(ti)) }
+
+\vspace{5mm} 
+
+%-------------------------------------------------------------------------------------------%
+\subsection{Usados en Ejercicio 3}
+%-------------------------------------------------------------------------------------------%
+
+\pred{esEncuestaValida}{th: eph_h, ti: eph_i}{\\ \indent (esMatriz(th)) \wedge (esMatriz (ti)) \wedge (|th|>0) \wedge (|ti|>0) \wedge \\ \indent (columnasIgualVariablesDeIndividuo (ti)) \wedge (columnasIgualVariablesDeHogar (th)) \wedge \\ \indent (paraCadaIndividuoHayHogar(ti,th)) \wedge (paraCadaHogarHayIndividuo(ti,th)) \wedge \\ \indent (noHayHogaresRepetidos(th)) \wedge (noHayIndividuosRepetidos (ti)) \wedge \\ \indent ($mismoAñoyTrimestreDeRelevamiento(th,ti)$)\wedge (hogarConVeinteOMenosHabitantes(ti)) \wedge \\ \indent (mismasOMasHabitacionesDispoQueEnUso(th)) \wedge (rangoDeValoresCorrectosHog(th)) \wedge \\ \indent (rangoDeValoresCorrectosInd(ti)) }
+\vspace{5mm}
+
+\aux{cantidadDeHacinamientoCriticoEnRegion}{region:\ent, ti:eph_i,th:eph_h}{\ent}{
+\\\indent$\sum_{h=0}^{|th|-1}$ \IfThenElse{ ((th[h][@region]= region) \yLuego (th[h][@masmenos500]=0) \yLuego (th[h][@iv1]=1) \yLuego \\ \indent (\frac{cantidadDePersonasEnHogar (h,ti)}{cantidadDeHabitacionesParaDormirEnHogar(h,th)})>3)}{1}{0})}
+
+\vspace{5mm} 
+
+\aux{cantidadDePersonasEnHogar}{hogar:\ent, ti:eph_i}{\ent}{
+\\\indent$\sum_{i=0}^{|ti|-1}$ (\IfThenElse{ th[hogar][@hogcodusu]=ti[i][@indcodusu]}{1}{0})}
+
+\vspace{5mm} 
+
+\aux{cantidadDeHabitacionesParaDormirEnHogar}{h: \ent, th: eph_h}{\ent}{th[h][@ii2]}
+
+\vspace{5mm} 
+
+\aux{cantidadDeHogaresEnRegion}{region:\ent, th:eph_h}{\ent}{
+\\\indent$\sum_{h=0}^{|th|-1}$ (\IfThenElse{ th[h][@region]=region}{1}{0})}
+
+\vspace{5mm} 
+
+\aux{proporcionHacinamientoCriticoEnRegion}{region:\ent, ti:eph_i,th:eph_h}{\float}{
+\\\indent\frac{cantidadDeHacinamientoCriticoEnRegion (region,ti,th)}{cantidadDeHogaresEnRegion (region,th)}}
+
+\vspace{5mm} 
+
+%-------------------------------------------------------------------------------------------%
+\subsection{Usados en Ejercicio 4}
+%-------------------------------------------------------------------------------------------%
+
+
+\pred{esEncuestaValida}{th: eph_h, ti: eph_i}{\\ \indent (esMatriz(th)) \wedge (esMatriz (ti)) \wedge (|th|>0) \wedge (|ti|>0) \wedge \\ \indent (columnasIgualVariablesDeIndividuo (ti)) \wedge (columnasIgualVariablesDeHogar (th)) \wedge \\ \indent (paraCadaIndividuoHayHogar(ti,th)) \wedge (paraCadaHogarHayIndividuo(ti,th)) \wedge \\ \indent (noHayHogaresRepetidos(th)) \wedge (noHayIndividuosRepetidos (ti)) \wedge \\ \indent ($mismoAñoyTrimestreDeRelevamiento(th,ti)$)\wedge (hogarConVeinteOMenosHabitantes(ti)) \wedge \\ \indent (mismasOMasHabitacionesDispoQueEnUso(th)) \wedge (rangoDeValoresCorrectosHog(th)) \wedge \\ \indent (rangoDeValoresCorrectosInd(ti)) }
+\vspace{5mm}
+
+\pred{viveEnCasaoDepartamento}{ind: individuo, th: eph_h}{\\ \indent (\exists h :\ent) ((0 \leq h < |th|) \yLuego (ind[@indcodusu] = th[h][@hogcodusu])) \yLuego (th[h][@iv1]=1 \oLuego th[h][@iv1]=2)}
+
+\vspace{5mm} 
+\pred{viveEnCiudadGrande}{ind: individuo, th: eph_h}{\\ \indent (\exists h :\ent) ((0 \leq h < |th|) \yLuego (ind[@indcodusu] = th[h][@hogcodusu])) \yLuego (th[h][@masmenos500]=1)}
+
+
+\vspace{5mm} 
+
+\pred{trabajaEnSuHogar}{ind: individuo}{\\ \indent ind[@pp04g]=6}
+
+\vspace{10mm} 
+
+\pred{hayHabitaciónDeTrabajoEnHogarDelInd}{indcodusu: dato, th: eph_h}{\\ \indent (\exists h : \ent)((0 \leq h < |th|) \yLuego (th[h][0] = indcodusu))\yLuego th[h][@ii3]=1}
+
+\vspace{5mm} 
+
+\aux{cantidadDeIndividuosHaciendoTeleworking}{ti:eph_i,th:eph_h}{\ent}{
+\\\indent $\sum_{i=0}^{|ti|-1}$ (\IfThenElse{ (viveEnCasaODepartamento(ti[i],th)) \wedge (viveEnCiudadGrande(ti[i],th)) \wedge (trabajaEnSuHogar(ti[i])) \wedge \\ \indent (hayHabitacionDeTrabajoEnIndcodusu(ti[i][@indcodusu],th))}{1}{0})}
+
+\vspace{5mm} 
+
+\aux{cantidadDeIndividuosEnCiudadGrande}{ti: eph_i, th: eph_h}{\ent}{
+\\\indent $\sum_{i=0}^{|ti|-1}$ (\IfThenElse{viveEnciudadGrande(ti[i],th)}{1}{0}}
+
+\vspace{5mm}
+
+\aux {proporcionHaciendoTeleworking}{th: eph_h, ti: eph_i}{\float}{
+\\\indent \frac{cantidadDeIndividuosHaciendoTeleworking(ti,th)}{cantidaDeIndividuosEnCiudadGrande(ti,th)}}
+
+\vspace{5mm}
+
+\pred{esEncuestaAnterior}{t1h: eph_h, t2h: eph_i}{\\ \indent (\forall h,j : \ent)((0 \leq h < |t1h|)\wedge(0 \leq j < |t2h|))\implicaLuego(t1h[h][$@hogaño$] < t2h[j][$@hogaño$])
+}
+
+\vspace{5mm}
+
+\pred{esEncuestaValida}{th: eph_h, ti: eph_i}{\\ \indent (esMatriz(th)) \wedge (esMatriz (ti)) \wedge (|th|>0) \wedge (|ti|>0) \wedge \\ \indent (columnasIgualVariablesDeIndividuo (ti)) \wedge (columnasIgualVariablesDeHogar (th)) \wedge \\ \indent (paraCadaIndividuoHayHogar(ti,th)) \wedge (paraCadaHogarHayIndividuo(ti,th)) \wedge \\ \indent (noHayHogaresRepetidos(th)) \wedge (noHayIndividuosRepetidos (ti)) \wedge \\ \indent ($mismoAñoyTrimestreDeRelevamiento(th,ti)$)\wedge (hogarConVeinteOMenosHabitantes(ti)) \wedge \\ \indent (mismasOMasHabitacionesDispoQueEnUso(th)) \wedge (rangoDeValoresCorrectosHog(th)) \wedge \\ \indent (rangoDeValoresCorrectosInd(ti)) }
+\vspace{5mm}
+
+\pred{sonDelMismoTrimestre}{t1h: eph_h, t2h:eph_h}{\\ \indent (\forall h,j : \ent)((0 \leq h < |t1h|)\wedge(0 \leq j < |t2h|))\implicaLuego(t1h[h][@hogtrimestre] = t2h[j][@hogtrimestre])}
+
+%-------------------------------------------------------------------------------------------%
+\subsection{Usados en Ejercicio 5}
+%-------------------------------------------------------------------------------------------%
+\pred{esEncuestaValida}{th: eph_h, ti: eph_i}{\\ \indent (esMatriz(th)) \wedge (esMatriz (ti)) \wedge (|th|>0) \wedge (|ti|>0) \wedge \\ \indent (columnasIgualVariablesDeIndividuo (ti)) \wedge (columnasIgualVariablesDeHogar (th)) \wedge \\ \indent (paraCadaIndividuoHayHogar(ti,th)) \wedge (paraCadaHogarHayIndividuo(ti,th)) \wedge \\ \indent (noHayHogaresRepetidos(th)) \wedge (noHayIndividuosRepetidos (ti)) \wedge \\ \indent ($mismoAñoyTrimestreDeRelevamiento(th,ti)$)\wedge (hogarConVeinteOMenosHabitantes(ti)) \wedge \\ \indent (mismasOMasHabitacionesDispoQueEnUso(th)) \wedge (rangoDeValoresCorrectosHog(th)) \wedge \\ \indent (rangoDeValoresCorrectosInd(ti)) }
+\vspace{5mm}
+
+\pred{esDeTenenciaPropia}{th: eph_h, h: \ent}{ \\ \indent th[h][@ii7]=1}
+
+\vspace{5mm}
+
+\aux{cantidadDePersonasEnHogar}{hogar:\ent, ti:eph_i}{\ent}{
+\\\indent$\sum_{i=0}^{|ti|-1}$ (\IfThenElse{ th[hogar][@hogcodusu]=ti[i][@indcodusu]}{1}{0})}
+
+\vspace{5mm} 
+
+\aux{cantidadDeHabitacionesParaDormirEnHogar}{h: \ent, th: eph_h}{\ent}{th[h][@ii2]}
+
+
+
+%-------------------------------------------------------------------------------------------%
+\subsection{Auxiliares para indexación}
+%-------------------------------------------------------------------------------------------%
+
+\aux {@hogcodusu}{}{\ent}{ord(HOGCODUSU)}
+\aux {@hogaño}{}{\ent}{ord($HOGAÑO$)}
+\aux {@}{hogtrimestre}{\ent}{ord(HOGTRIMESTRE)}
+\aux {@ii7}{}{\ent}{ord(II7)}
+\aux {@region}{}{\ent}{ord(REGION)}
+\aux {@masmenos500}{}{\ent}{ord(MAS_500)}
+\aux {@iv1}{}{\ent}{ord(IV1)}
+\aux {@iv2}{}{\ent}{ord(IV2)}
+\aux {@ii2}{}{\ent}{ord(II2)}
+\aux {@ii3}{}{\ent}{ord(II3)}
+\aux {@hoglatitud}{}{\ent}{ord(HOGLATITUD)}
+\aux {@hoglongitud}{}{\ent}{ord(HOGLONGITU)}
+
+\aux {@indcodusu}{}{\ent}{ord(INDCODUSU)}
+\aux {@componente}{}{\ent}{ord(COMPONENTE)}
+\aux {@indaño}{}{\ent}{ord($INDAÑO$)}
+\aux {@indtrimestre}{}{\ent}{ord(INDTRIMESTRE)}
+\aux {@ch4}{}{\ent}{ord(CH4)}
+\aux {@ch6}{}{\ent}{ord(CH6)}
+\aux{@niveled}{}{\ent}{ord(NIVEL\_ED)}
+\aux {@estado}{}{\ent}{ord(ESTADO)}
+\aux {@catocup}{}{\ent}{ord(CAT\_OCUP)}
+\aux {@p47t}{}{\ent}{ord(P47T)}
+\aux {@pp04g}{}{\ent}{ord(PP04G)}
+
+\section{Decisiones tomadas}
+
+
+
+
+\end{document}
