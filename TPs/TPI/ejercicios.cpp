@@ -4,219 +4,149 @@
 
 using namespace std;
 
-
-// Implementación problema 1
-
-bool esEncuestaValida(eph_h th, eph_i ti) {
-    return !esVacia(ti)
-           && !esVacia(th)
-           && esMatriz(ti, COLUMNAS_INDIVIDUO)
-           && esMatriz(th, COLUMNAS_HOGAR)
-           && !hayIndividuosSinHogares(ti, th)
-           && !hayHogaresSinIndividuos(ti, th)
-           && !hayIndividuosRepetidos(ti)
-           && !hayHogaresRepetidos(th)
-           && mismoAnioYTrimestre(ti, th)
-           && menosDe21MiembrosPorHogar(ti, th)
-           && cantidadValidaDormitorios(th)
-           && valoresIndividuoEnRango(ti)
-           && valoresHogarEnRango(th);
+// Implementacion Problema 1
+bool esEncuestaValida ( eph_h th, eph_i ti ) {
+	bool resp = esValida(th, ti);
+	return resp;
 }
 
+// Implementacion Problema 2
+vector < int > histHabitacional ( eph_h th, eph_i ti, int region ) {
+	int largo = cantidadMaximadeHabitacionesEnRegionDada(th, region);
+	vector < int > resultado;
+	for (int i = 1; i <= largo; i++){
+		resultado.push_back(cantidadCasasConiHabitacionesEnRegionDada (th, region, i));
+	}
+	return resultado;
+}
 
-// Implementación problema 2
+// Implementacion Problema 3
+vector< pair < int, float > > laCasaEstaQuedandoChica ( eph_h th, eph_i ti ) {
 
-vector<int> histHabitacional(eph_h th, eph_i ti, int region) {
-    vector<int> res;
-    for (int h = 0; h < th.size(); h++) {
-        if (estaEnLaRegion(th[h], region)) {
-            int habitaciones = th[h][IV2];
-            while (res.size() < habitaciones) {
-                res.push_back(0);
-            }
-            if (esCasa(th[h])) {
-                res[habitaciones - 1]++;
+    vector<pair<int,float>> resp = {make_pair(1,-1.0),
+                                    make_pair(40, -1.0),
+                                    make_pair(41, -1.0),
+                                    make_pair(42,-1.0),
+                                    make_pair(43,-1.0),
+                                    make_pair(44,-1.0)};
+
+    resp[0].second = proporcionHogaresConHC(th, ti, 1);
+    for (int k = 1; k < CANTIDAD_DE_REGIONES; k++) {
+        resp[k].second = proporcionHogaresConHC(th, ti, 39 + k);
+    }
+    return resp;
+}
+
+// Implementacion Problema 4
+bool creceElTeleworkingEnCiudadesGrandes ( eph_h t1h, eph_i t1i, eph_h t2h, eph_i t2i ) {
+    bool resp = false;
+    if ( proporcionTeleworking (t2h,t2i) > proporcionTeleworking (t1h, t1i)){
+        resp = true;
+    }
+    return resp;
+}
+
+// Implementacion Problema 5
+int costoSubsidioMejora( eph_h th, eph_i ti, int monto ){
+    int resp = 0;
+    for (int h = 0; h < th.size(); ++h) {
+        if (tieneCasaPropia (th[h]) && tieneCasaChica (th[h], ti)){
+            resp = resp + monto;
+        }
+    }
+    return resp;
+}
+
+// Implementacion Problema 6
+join_hi generarJoin( eph_h th, eph_i ti ){
+    hogar h = {};
+    individuo i = {};
+    join_hi resp (ti.size());
+
+    for (int k = 0; k < ti.size(); ++k) { 
+        for (int j = k; j < resp.size(); ++j) {
+            resp[j].second = ti[k];
+            break;
+        }
+
+    } 
+    for (int j = 0; j < resp.size(); ++j) {
+        for (int k = 0; k < th.size(); ++k) { 
+            if (resp[j].second[INDCODUSU] == th[k][HOGCODUSU]) {
+                resp[j].first = th[k];
+                break;
             }
         }
     }
-    return res;
+    return  resp;
 }
 
+// Implementacion Problema 7
+void ordenarRegionYCODUSU (eph_h & th, eph_i & ti) {
+        // PROBADO FUNCIONA
+        ordenarPorCodusuTh(th);
+        ordenarPorRegiones(th);
+        ordenarPorComponenteTi(ti);
+        vector <int> lista = listaDeHogcodususOrdenados(th);
+        ordenarPorCODUSUTi(ti,lista);
+        return;
+}
 
-// Implementación problema 3
+// Implementacion Problema 8
 
-vector<pair<int, float>> laCasaEstaQuedandoChica(eph_h th, eph_i ti) {
-    vector<pair<int, float>> res = {
-            make_pair(1, 0),
-            make_pair(40, 0),
-            make_pair(41, 0),
-            make_pair(42, 0),
-            make_pair(43, 0),
-            make_pair(44, 0),
-    };
-
-    for (int i = 0; i < res.size(); i++) {
-        dato region = res[i].first;
-        int total = 0;
-        int conHacinamientoCritico = 0;
-        for (int h = 0; h < th.size(); h++) {
-            if (estaEnLaRegion(th[h], region) && esCasa(th[h]) && esHogarDePueblo(th[h])) {
-                total++;
-                if (hogarConHacinamientoCritico(ti, th[h])) {
-                    conHacinamientoCritico++;
+vector < hogar > muestraHomogenea( eph_h & th, eph_i & ti ){
+    eph_h resp;
+    vector <pair <int,int>> hogaresConIngresos = listaHogaresConIngresos(th,ti);
+    ordenarHogaresPorIngresos(hogaresConIngresos);
+    vector <pair <int,int>> hogaresConIngresosOrdenados = hogaresConIngresos;
+    vector<int> listaDeMejoresHogares = listaDeHogaresOptimos(hogaresConIngresosOrdenados);
+    if (listaDeMejoresHogares.size()>=3){
+        for (int i = 0; i < listaDeMejoresHogares.size(); ++i) {
+            for (int h = 0; h < th.size(); ++h) {
+                if (listaDeMejoresHogares[i] == th[h][HOGCODUSU]){
+                    resp.push_back(th[h]);
+                    break;
                 }
+
             }
-        }
-        res[i].second = total == 0 ? 0 : float(conHacinamientoCritico) / float(total);
-    }
 
-    return res;
+        }
+
+    }
+    return resp;
 }
 
-
-// Implementación problema 4
-
-bool creceElTeleworkingEnCiudadesGrandes(eph_h t1h, eph_i t1i, eph_h t2h, eph_i t2i) {
-    return proporcionTeleworking(t2h, t2i) > proporcionTeleworking(t1h, t1i);
+// Implementacion Problema 9
+void corregirRegion( eph_h & th, eph_i ti ) {
+        cambiaRegionGBAaPampeana(th);
+	return;
 }
 
+// Implementacion Problema 10
+pair < eph_h, eph_i > quitarIndividuos(eph_i &ti, eph_h &th, vector <pair <int,dato> > busqueda){
+    eph_h rth = {{-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1}};
+    eph_i rti = {{-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1}};
+    pair < eph_h, eph_i > resp = make_pair(rth, rti);
 
-// Implementación problema 5
+    eph_h th0 = th;
+    eph_i ti0 = ti;
 
-int costoSubsidioMejora(eph_h th, eph_i ti, int monto) {
-    int res = 0;
-    for (int h = 0; h < th.size(); h++) {
-        if (esCasaPropia(th[h]) && esCasaChica(ti, th[h])) {
-            res += monto;
-        }
-    }
-    return res;
+    ti = restoDeTablaIndividuos(ti0, busqueda);
+    th = restoDeTablaHogares(th0, ti0, busqueda);
+
+    resp.first = tablaHogares(th0, ti0, busqueda);
+    resp.second = tablaIndividuos(ti0, busqueda);
+
+    return resp;
 }
 
-
-// Implementación problema 6
-
-join_hi generarJoin(eph_h th, eph_i ti) {
-    join_hi res;
-    for (int h = 0; h < th.size(); h++) {
-        for (int i = 0; i < ti.size(); i++) {
-            bool viveEnElHogar = ti[i][INDCODUSU] == th[h][HOGCODUSU];
-            if (viveEnElHogar) {
-                res.push_back(make_pair(th[h], ti[i]));
-            }
-        }
+// Implementacion Problema 11
+vector < int > histogramaDeAnillosConcentricos(eph_h th, eph_i ti, pair < int, int > centro, vector < int > distancias) {
+    vector<int> resp = {};
+    resp.push_back(cantidadDeHogaresPorAnillo(0, distancias[0], centro, th));
+    for (int k = 1; k < distancias.size(); k++) {
+        resp.push_back (cantidadDeHogaresPorAnillo(distancias[k - 1], distancias[k], centro, th));
     }
-    return res;
+    return resp;
 }
 
-
-// Implementación problema 7
-
-void ordenarRegionYCODUSU(eph_h &th, eph_i &ti) {
-    int tiOrdenadoHasta = 0;
-    for (int i = 0; i < th.size(); i++) {
-        int j = seleccionarIndiceProximoHogar(th, i);
-        swap(th[i], th[j]);
-        ordenarIndividuosDelMismoHogar(ti, tiOrdenadoHasta, th[i][HOGCODUSU]);
-    }
-}
-
-
-// Implementación problema 8
-
-vector<hogar> muestraHomogenea(eph_h &th, eph_i &ti) {
-    vector<int> ingresosPorHogar = calcularIngresosPorHogar(th, ti);
-    ordenarHogaresPorIngresos(th, ingresosPorHogar);
-
-    vector<int> muestra = buscarMuestra(ingresosPorHogar);
-
-    vector<hogar> res;
-    for (int i = 0; i < muestra.size(); i++) {
-        res.push_back(th[muestra[i]]);
-    }
-
-    return res.size() >= 3 ? res : vector<hogar>{};
-}
-
-
-// Implementación problema 9
-
-void corregirRegion(eph_h &th, eph_i ti) {
-    for (int h = 0; h < th.size(); h++) {
-        if (th[h][REGION] == GBA) {
-            th[h][REGION] = PAMPEANA;
-        }
-    }
-}
-
-
-// Implementación problema 10
-
-pair<eph_h, eph_i> quitarIndividuos(eph_i &ti, eph_h &th, vector<pair<int, dato>> busqueda) {
-    eph_h thMatcheados;
-    eph_i tiMatcheados;
-    eph_h thModificado;
-    eph_i tiModificado;
-
-    // En el peor caso ninguno matchea y no se modifican los th, ti de entrada.
-    // https://www.cplusplus.com/reference/vector/vector/reserve/
-    thModificado.reserve(th.size());
-    tiModificado.reserve(ti.size());
-
-    for (int i = 0; i < ti.size(); i++) {
-        if (individuoMatcheaBusqueda(ti[i], busqueda)) {
-            tiMatcheados.push_back(ti[i]);
-        } else {
-            tiModificado.push_back(ti[i]);
-        }
-    }
-
-    int h = 0;
-    while (h < th.size()) {
-        int i = 0;
-        while (i < tiMatcheados.size() && tiMatcheados[i][INDCODUSU] != th[h][HOGCODUSU]) {
-            i++;
-        }
-        bool mantenerHogar = true;
-        bool hayIndividuoMatcheadoDelHogar = i < tiMatcheados.size();
-        if (hayIndividuoMatcheadoDelHogar) {
-            thMatcheados.push_back(th[h]);
-            int j = 0;
-            while (j < tiModificado.size() && tiModificado[j][INDCODUSU] != th[h][HOGCODUSU]) {
-                j++;
-            }
-            bool noQuedanIndividuosDelHogar = j == tiModificado.size();
-            if (noQuedanIndividuosDelHogar) {
-                mantenerHogar = false;
-            }
-        }
-        if (mantenerHogar) {
-            thModificado.push_back(th[h]);
-        }
-        h++;
-    }
-
-    th = thModificado;
-    ti = tiModificado;
-
-    return make_pair(thMatcheados, tiMatcheados);
-}
-
-
-// Implementación problema 11
-
-vector<int> histogramaDeAnillosConcentricos(eph_h th, eph_i ti, pair<int, int> centro, vector<int> distancias) {
-    vector<int> res(distancias.size());
-    for (int h = 0; h < th.size(); h++) {
-        pair<int, int> posicion = make_pair(th[h][HOGLATITUD], th[h][HOGLONGITUD]);
-        float distanciaAlCentro = distanciaEuclideana(posicion, centro);
-        int d = 0;
-        while (d < distancias.size() && distanciaAlCentro > distancias[d]) {
-            d++;
-        }
-        if (d < distancias.size()) {
-            res[d]++;
-        }
-    }
-    return res;
-}

@@ -1,0 +1,50 @@
+Index: ejercicios.cpp
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>#include \"ejercicios.h\"\r\n#include \"auxiliares.h\"\r\n#include \"definiciones.h\"\r\n\r\nusing namespace std;\r\n// Implementacion Problema 1\r\nbool esEncuestaValida ( eph_h th, eph_i ti ) {\r\n\tbool resp = false;\r\n\tif(esValida(th, ti)){\r\n        resp = true;\r\n    }\r\n\treturn resp;\r\n}\r\n\r\n// Implementacion Problema 2\r\nvector < int > histHabitacional ( eph_h th, eph_i ti, int region ) {\r\n\tint largo = cantidadMaximadeHabitacionesEnRegionDada(th, region);\r\n\tvector < int > resultado;\r\n\tfor (int i = 1; i <= largo; i++){\r\n\t\t\r\n\t\tresultado.push_back(cantidadCasasConiHabitacionesEnRegionDada (th, region, i));\r\n\t}\r\n\treturn resultado;\r\n}\r\n// Implementacion Problema 3\r\nvector< pair < int, float > > laCasaEstaQuedandoChica ( eph_h th, eph_i ti ) {\r\n\r\n    vector<pair<int,float>> resp = {make_pair(1,-1.0),\r\n                                    make_pair(40, -1.0),\r\n                                    make_pair(41, -1.0),\r\n                                    make_pair(42,-1.0),\r\n                                    make_pair(43,-1.0),\r\n                                    make_pair(44,-1.0)};\r\n    if(esValida(th, ti)) {\r\n        resp[0].second = proporcionHogaresConHC(th, ti, 1);\r\n        for (int k = 1; k < CANTIDAD_DE_REGIONES; k++) {\r\n            resp[k].second = proporcionHogaresConHC(th, ti, 40 + k);\r\n        }\r\n    }\r\n    return resp;\r\n}\r\n\r\n// Implementacion Problema 4\r\nbool creceElTeleworkingEnCiudadesGrandes ( eph_h t1h, eph_i t1i, eph_h t2h, eph_i t2i ) {\r\n    bool resp = false;\r\n    if ( proporcionTeleworking (t2h,t2i) > proporcionTeleworking (t1h, t1i)){\r\n        resp = true;\r\n    }\r\n    return  resp;\r\n}\r\n\r\n// Implementacion Problema 5\r\nint costoSubsidioMejora( eph_h th, eph_i ti, int monto ){\r\n    int resp = 0;\r\n    for (int h = 0; h < th.size(); ++h) {\r\n        if (tieneCasaPropia (th[h]) && tieneCasaChica (th[h], ti)){\r\n            resp = resp + monto;\r\n        }\r\n    }\r\n    return resp;\r\n}\r\n\r\n// Implementacion Problema 6\r\njoin_hi generarJoin( eph_h th, eph_i ti ){\r\n    hogar h = {};\r\n    individuo i = {};\r\n    join_hi resp (ti.size());\r\n\r\n    for (int k = 0; k < ti.size(); ++k) { //Voy dupla por dupla agregando los individuos de ti\r\n        for (int j = k; j < resp.size(); ++j) {\r\n            resp[j].second = ti[k];\r\n            break;\r\n        }\r\n\r\n    } // Hasta acá la dupla debería tener en la segunda posicion un individuo\r\n    for (int j = 0; j < resp.size(); ++j) {\r\n        for (int k = 0; k < th.size(); ++k) { //Acá veo dupla por dupla, si el hogcodusu de th coincide con el ind de la dupla entonces lo mete\r\n            if (resp[j].second[INDCODUSU] == th[k][HOGCODUSU]) {\r\n                resp[j].first = th[k];\r\n                break;\r\n            }\r\n        }\r\n    }\r\n    // TODO\r\n\r\n    return  resp;\r\n}\r\n\r\n/ Implementacion Problema 7\r\nvoid ordenarRegionYCODUSU (eph_h & th, eph_i & ti) {\r\n        // PROBADO FUNCIONA\r\n        ordenarPorCodusuTh(th);\r\n        ordenarPorRegiones(th);\r\n        ordenarPorComponenteTi(ti);\r\n        vector <int> lista = listaDeHogcodususOrdenados(th);\r\n        ordenarPorCODUSUTi(ti,lista);\r\n        return;\r\n    }\r\n\r\n\r\n\r\n// Implementacion Problema 8\r\nvector < hogar > muestraHomogenea( eph_h & th, eph_i & ti ){\r\n    hogar h = {};\r\n    vector < hogar > resp = {h};\r\n\r\n    // TODO\r\n    //Formar la lista de hogares con sus Ingresos\r\n    vector <pair <int,int>> hogaresConIngresos = listaHogaresConIngresos(th,ti);\r\n    // Ordenar la lista de hogares por ingresos de manera creciente\r\n    ordenarHogaresPorIngresos(hogaresConIngresos);\r\n    // Buscar la differencia mas grande\r\n    int difMax = laDifferenciaQueMasAparece(hogaresConIngresos);\r\n    vector <int> v = hogcodususDeDifs(difMax, hogaresConIngresos);\r\n    resp = listaDeHogaresFinales( th, v);\r\n    return resp;\r\n\r\n\r\n// Implementacion Problema 9\r\nvoid corregirRegion( eph_h & th, eph_i ti ) {\r\n\tif(esEncuestaValida(th, ti)){\r\n        cambiaRegionGBAaPampeana(th);\r\n    }\r\n\treturn;\r\n}\r\n\r\n// Implementacion Problema 10\r\npair < eph_h, eph_i > quitarIndividuos(eph_i &ti, eph_h &th, vector <pair <int,dato> > busqueda){\r\n    eph_h rth = {{-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1}};\r\n    eph_i rti = {{-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1}};\r\n    pair < eph_h, eph_i > resp = make_pair(rth, rti);\r\n\r\n    ti = restoDeTablaIndividuos(ti, busqueda);\r\n    th = restoDeTablaHogares(th, ti, busqueda);\r\n\r\n    resp.first = tablaHogares(th, ti, busqueda);\r\n    resp.second = tablaIndividuos(ti, busqueda);\r\n\t// TODO\r\n\t\r\n\treturn resp;\r\n}\r\n\r\n// Implementacion Problema 11\r\nvector < int > histogramaDeAnillosConcentricos(eph_h th, eph_i ti, pair < int, int > centro, vector < int > distancias) {\r\n    vector<int> resp = {};\r\n    resp.push_back(cantidadDeHogaresPorAnillo(0, distancias[0], centro, th));\r\n    for (int k = 1; k < distancias.size(); k++) {\r\n        resp.push_back (cantidadDeHogaresPorAnillo(distancias[k - 1], distancias[k], centro, th));\r\n    }\r\n    return resp;\r\n}\r\n\r\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/ejercicios.cpp b/ejercicios.cpp
+--- a/ejercicios.cpp	
++++ b/ejercicios.cpp	
+@@ -130,14 +130,13 @@
+     eph_i rti = {{-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1}};
+     pair < eph_h, eph_i > resp = make_pair(rth, rti);
+ 
+-    ti = restoDeTablaIndividuos(ti, busqueda);
+-    th = restoDeTablaHogares(th, ti, busqueda);
+-
+     resp.first = tablaHogares(th, ti, busqueda);
+     resp.second = tablaIndividuos(ti, busqueda);
+-	// TODO
+-	
+-	return resp;
++
++    ti = restoDeTablaIndividuos(ti, busqueda);
++    th = restoDeTablaHogares(th, ti, busqueda);
++
++    return resp;
+ }
+ 
+ // Implementacion Problema 11
+Index: .idea/modules.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+><?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n<project version=\"4\">\r\n  <component name=\"ProjectModuleManager\">\r\n    <modules>\r\n      <module fileurl=\"file://$PROJECT_DIR$/.idea/TPI.iml\" filepath=\"$PROJECT_DIR$/.idea/TPI.iml\" />\r\n    </modules>\r\n  </component>\r\n</project>
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/.idea/modules.xml b/.idea/modules.xml
+--- a/.idea/modules.xml	
++++ b/.idea/modules.xml	
+@@ -2,7 +2,7 @@
+ <project version="4">
+   <component name="ProjectModuleManager">
+     <modules>
+-      <module fileurl="file://$PROJECT_DIR$/.idea/TPI.iml" filepath="$PROJECT_DIR$/.idea/TPI.iml" />
++      <module fileurl="file://$PROJECT_DIR$/.idea/auxiliares.cpp.iml" filepath="$PROJECT_DIR$/.idea/auxiliares.cpp.iml" />
+     </modules>
+   </component>
+ </project>
+\ No newline at end of file

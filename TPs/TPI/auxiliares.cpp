@@ -2,332 +2,72 @@
 #include "auxiliares.h"
 #include "gtest/gtest.h"
 #include "ejercicios.h"
+#include<cmath>
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//AUXILIARES PARA esEncuestaValida DEL PUNTO 1:
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-// Auxiliares comunes
-
-bool esCasa(hogar &h) {
-    return h[IV1] == CASA;
-}
-
-bool esCasaPropia(hogar &h) {
-    return h[II7] == 1;
-}
-
-bool esDepto(hogar &h) {
-    return h[IV1] == DEPTO;
-}
-
-bool estaEnLaRegion(hogar &h, dato region) {
-    return h[REGION] == region;
-}
-
-bool esHogarDePueblo(hogar &h) {
-    return h[MAS_500] == 0;
-}
-
-int cantidadDeDormitorios(hogar &h) {
-    return h[II2];
-}
-
-int cantidadDeHabitantes(eph_i &ti, hogar &h) {
-    int res = 0;
-    for (int i = 0; i < ti.size(); i++) {
-        bool viveEnElHogar = ti[i][INDCODUSU] == h[HOGCODUSU];
-        if (viveEnElHogar) {
-            res++;
-        }
-    }
-    return res;
-}
-
-hogar hogarDelIndividuo(eph_h &th, individuo &i) {
-    hogar res;
-    for (int h = 0; h < th.size() && res.empty(); h++) {
-        bool viveEnElHogar = i[INDCODUSU] == th[h][HOGCODUSU];
-        if (viveEnElHogar) {
-            res = th[h];
-        }
-    }
-    return res;
-}
-
-
-// Auxiliares problema 1
-
-bool cantidadValidaDormitorios(eph_h &th) {
+bool esMatriz(vector<vector <int>> t){
     bool res = true;
-    for (int h = 0; h < th.size() && res; h++) {
-        bool suficientesHabitaciones = th[h][IV2] >= th[h][II2];
-        if (!suficientesHabitaciones) {
-            res = false;
-        }
+    if (t.size() == 1){
+        return res;
     }
-    return res;
+    for (int i = 0; i < t.size() -1 ; ++i){
+        if (t[i].size() != t[i+1].size()){
+            res = false;
+            return res;
+        }
+    } return res;
 }
 
-bool esVacia(matriz &m) {
-    return m.empty();
-}
-
-bool esMatriz(matriz &m, int columnas) {
+bool esCantidadCorrectaDeColumnasI(eph_i ti){
     bool res = true;
-    for (int i = 0; i < m.size() && res; i++) {
-        if (m[i].size() != columnas) {
+    for (int i = 0; i < ti.size() ; ++i) {
+        if(ti[i].size() != 11){
             res = false;
+            return res;
         }
     }
     return res;
 }
 
-bool hayHogaresRepetidos(eph_h &th) {
+bool esCantidadCorrectaDeColumnasH(eph_h th){
+    bool res = true;
+    for (int h = 0; h < th.size() ; ++h) {
+        if(th[h].size() != 12){
+            res = false;
+            return res;
+        }
+    }
+    return res;
+}
+
+bool noHayIndividuosSinHogares(eph_h th, eph_i ti){
     bool res = false;
-    for (int i = 0; i < th.size() && !res; i++) {
-        for (int j = 0; j < th.size() && !res; j++) {
-            bool mismoCodigo = th[i][HOGCODUSU] == th[j][HOGCODUSU];
-            if (i != j && mismoCodigo) {
+    for(int i=0; i < ti.size(); i++){
+        for(int h=0; h < th.size(); h++){
+            if(th[h][0] == ti[i][0]){
                 res = true;
+                break;
+            } else {
+                if (h == th.size()-1){
+                    return res = false;}
             }
         }
     }
     return res;
 }
 
-bool hayHogaresSinIndividuos(eph_i &ti, eph_h &th) {
+bool noHayHogaresSinIndividuos(eph_h th, eph_i ti){
     bool res = false;
-    for (int h = 0; h < th.size() && !res; h++) {
-        int i = 0;
-        while (i < ti.size() && th[h][HOGCODUSU] != ti[i][INDCODUSU]) {
-            i++;
-        }
-        if (i == ti.size()) {
-            res = true;
-        }
-    }
-    return res;
-}
-
-bool hayIndividuosRepetidos(eph_i &ti) {
-    bool res = false;
-    for (int i = 0; i < ti.size() && !res; i++) {
-        for (int j = 0; j < ti.size() && !res; j++) {
-            bool mismoHogar = ti[i][INDCODUSU] == ti[j][INDCODUSU];
-            bool mismoComponente = ti[i][COMPONENTE] == ti[j][COMPONENTE];
-            if (i != j && mismoHogar && mismoComponente) {
+    for(int h=0; h < th.size(); h++){
+        for(int i=0; i < ti.size(); i++){
+            if(ti[i][0] == th[h][0]){
                 res = true;
-            }
-        }
-    }
-    return res;
-}
-
-bool hayIndividuosSinHogares(eph_i &ti, eph_h &th) {
-    bool res = false;
-    for (int i = 0; i < ti.size() && !res; i++) {
-        int h = 0;
-        while (h < th.size() && th[h][HOGCODUSU] != ti[i][INDCODUSU]) {
-            h++;
-        }
-        if (h == th.size()) {
-            res = true;
-        }
-    }
-    return res;
-}
-
-bool menosDe21MiembrosPorHogar(eph_i &ti, eph_h &th) {
-    bool res = true;
-    for (int h = 0; h < th.size() && res; h++) {
-        int miembros = 0;
-        int i = 0;
-        while (i < ti.size() && miembros < 21) {
-            if (th[h][HOGCODUSU] == ti[i][INDCODUSU]) {
-                miembros++;
-            }
-            i++;
-        }
-        if (miembros == 21) {
-            res = false;
-        }
-    }
-    return res;
-}
-
-bool mismoAnioYTrimestre(eph_i &ti, eph_h &th) {
-    bool res = true;
-
-    // Ya validamos que las tablas no son vacías.
-    dato anio = ti[0][INDANIO];
-    dato trimestre = ti[0][INDTRIMESTRE];
-
-    for (int i = 0; i < ti.size() && res; i++) {
-        bool mismoAnio = ti[i][INDANIO] == anio;
-        bool mismoTrimestre = ti[i][INDTRIMESTRE] == trimestre;
-        if (!mismoAnio || !mismoTrimestre) {
-            res = false;
-        }
-    }
-
-    for (int h = 0; h < th.size() && res; h++) {
-        bool mismoAnio = th[h][HOGANIO] == anio;
-        bool mismoTrimestre = th[h][HOGTRIMESTRE] == trimestre;
-        if (!mismoAnio || !mismoTrimestre) {
-            res = false;
-        }
-    }
-
-    return res;
-}
-
-bool valoresHogarEnRango(eph_h &th) {
-    bool res = true;
-    for (int h = 0; h < th.size() && res; h++) {
-        bool hogarValido = 0 < th[h][HOGCODUSU]
-                           && 0 < th[h][HOGTRIMESTRE] && th[h][HOGTRIMESTRE] <= 4
-                           && 0 < th[h][II7] && th[h][II7] <= 3
-                           && (th[h][REGION] == 1 || (40 <= th[h][REGION] && th[h][REGION] <= 44))
-                           && 0 <= th[h][MAS_500] && th[h][MAS_500] <= 1
-                           && 0 < th[h][IV1] && th[h][IV1] <= 5
-                           && 0 < th[h][IV2]
-                           && 0 < th[h][II2]
-                           && 1 <= th[h][II3] && th[h][II3] <= 2;
-        if (!hogarValido) {
-            res = false;
-        }
-    }
-    return res;
-}
-
-bool valoresIndividuoEnRango(eph_i &ti) {
-    bool res = true;
-    for (int i = 0; i < ti.size() && res; i++) {
-        bool individuoValido = 0 < ti[i][INDCODUSU]
-                               && 0 < ti[i][COMPONENTE]
-                               && 0 < ti[i][INDTRIMESTRE] && ti[i][INDTRIMESTRE] <= 4
-                               && 0 < ti[i][CH4] && ti[i][CH4] <= 2
-                               && 0 <= ti[i][CH6]
-                               && 0 <= ti[i][NIVEL_ED] && ti[i][NIVEL_ED] <= 1
-                               && -1 <= ti[i][ESTADO] && ti[i][ESTADO] <= 1
-                               && 0 <= ti[i][CAT_OCUP] && ti[i][CAT_OCUP] <= 4
-                               && -1 <= ti[i][p47T]
-                               && 0 <= ti[i][PP04G] && ti[i][PP04G] <= 10;
-        if (!individuoValido) {
-            res = false;
-        }
-    }
-    return res;
-}
-
-
-// Auxiliares problema 3
-
-bool hogarConHacinamientoCritico(eph_i &ti, hogar &h) {
-    return cantidadDeHabitantes(ti, h) > 3 * cantidadDeDormitorios(h);
-}
-
-
-// Auxiliares problema 4
-
-bool esCasaChica(eph_i &ti, hogar &h) {
-    return cantidadDeHabitantes(ti, h) - 2 > cantidadDeDormitorios(h);
-}
-
-bool hogarValidoParaTeleworking(hogar &h) {
-    return !esHogarDePueblo(h) && (esCasa(h) || esDepto(h));
-}
-
-float proporcionTeleworking(eph_h &th, eph_i &ti) {
-    int cantidadTrabajando = 0;
-    int cantidadTeleworking = 0;
-
-    for (int i = 0; i < ti.size(); i++) {
-        hogar h = hogarDelIndividuo(th, ti[i]);
-        bool trabaja = ti[i][ESTADO] == 1;
-        if (trabaja && hogarValidoParaTeleworking(h)) {
-            cantidadTrabajando++;
-            if (trabajaEnSuVivienda(ti[i], h)) {
-                cantidadTeleworking++;
-            }
-        }
-    }
-
-    if (cantidadTrabajando == 0) {
-        return 0;
-    } else {
-        return float(cantidadTeleworking) / float(cantidadTrabajando);
-    }
-}
-
-bool trabajaEnSuVivienda(individuo &i, hogar &h) {
-    return i[PP04G] == 6 && h[II3] == 1;
-}
-
-
-// Auxiliares problemas 5 y 8
-
-int ingresosDelHogar(hogar &h, eph_i &ti) {
-    int res = 0;
-    for (int i = 0; i < ti.size(); i++) {
-        int ingresosDelIndividuo = ti[i][p47T];
-        bool viveEnElHogar = ti[i][INDCODUSU] == h[HOGCODUSU];
-        if (viveEnElHogar && ingresosDelIndividuo > 0) {
-            res += ingresosDelIndividuo;
-        }
-    }
-    return res;
-}
-
-
-// Auxiliares problema 7
-
-bool hogarVaAdelante(hogar &h1, hogar &h2) {
-    return h1[REGION] < h2[REGION] || (h1[REGION] == h2[REGION] && h1[HOGCODUSU] < h2[HOGCODUSU]);
-}
-
-bool individuoVaAdelante(individuo &i1, individuo &i2) {
-    return i1[INDCODUSU] == i2[INDCODUSU] && i1[COMPONENTE] < i2[COMPONENTE];
-}
-
-int seleccionarIndiceProximoHogar(eph_h &th, int indiceInicio) {
-    int res = indiceInicio;
-    for (int i = indiceInicio + 1; i < th.size(); i++) {
-        if (hogarVaAdelante(th[i], th[res])) {
-            res = i;
-        }
-    }
-    return res;
-}
-
-void ordenarIndividuosDelMismoHogar(eph_i &ti, int &tiOrdenadoHasta, dato codigoHogar) {
-    for (int i = tiOrdenadoHasta; i < ti.size(); i++) {
-        if (ti[i][INDCODUSU] == codigoHogar) {
-            swap(ti[i], ti[tiOrdenadoHasta]);
-            ordenarIndividuosPorComponente(ti, tiOrdenadoHasta);
-            tiOrdenadoHasta++;
-        }
-    }
-}
-
-void ordenarIndividuosPorComponente(eph_i &ti, int indiceUltimoIndividuoDelMismoHogar) {
-    int i = indiceUltimoIndividuoDelMismoHogar;
-    while (i > 0 && individuoVaAdelante(ti[i], ti[i - 1])) {
-        swap(ti[i], ti[i - 1]);
-        i--;
-    }
-}
-
-
-// Auxiliares problema 8
-
-vector<int> buscarMuestra(vector<int> &ingresosPorHogar) {
-    vector<int> res;
-    for (int i = 0; i < ingresosPorHogar.size(); i++) {
-        for (int j = i + 1; j < ingresosPorHogar.size(); j++) {
-            int diferencia = ingresosPorHogar[j] - ingresosPorHogar[i];
-            if (diferencia > 0) {
-                vector<int> muestra = {i, j};
-                llenarMuestra(muestra, diferencia, ingresosPorHogar);
-                if (muestra.size() > res.size()) {
-                    res = muestra;
+                break;
+            } else {
+                if (i == ti.size()-1) {
+                    return res = false;
                 }
             }
         }
@@ -335,57 +75,623 @@ vector<int> buscarMuestra(vector<int> &ingresosPorHogar) {
     return res;
 }
 
-vector<int> calcularIngresosPorHogar(eph_h &th, eph_i &ti) {
-    vector<int> res(th.size());
-    for (int h = 0; h < th.size(); h++) {
-        res[h] = ingresosDelHogar(th[h], ti);
-    }
-    return res;
-}
-
-void llenarMuestra(vector<int> &muestra, int diferencia, vector<int> &ingresosPorHogar) {
-    int i = muestra[1];
-    int j = muestra[1] + 1;
-    while (j < ingresosPorHogar.size()) {
-        if (ingresosPorHogar[j] - ingresosPorHogar[i] == diferencia) {
-            i = j;
-            muestra.push_back(j);
-        }
-        j++;
-    }
-}
-
-void ordenarHogaresPorIngresos(eph_h &th, vector<int> &ingresos) {
-    for (int i = 0; i < ingresos.size(); i++) {
-        int indiceMin = i;
-        for (int j = i; j < ingresos.size(); j++) {
-            if (ingresos[j] < ingresos[indiceMin]) {
-                indiceMin = j;
+bool noHayIndividuosRepetidos(eph_i ti){
+    bool res = true;
+    for(int i=0; i < ti.size() - 1; i++){
+        for (int j = i + 1; j <ti.size() ; ++j) {
+            if(ti[i][0] == ti[j][0] && ti[i][2] == ti[j][2]){
+                return res = false;
             }
         }
-        swap(th[indiceMin], th[i]);
-        swap(ingresos[indiceMin], ingresos[i]);
+    }
+    return res;
+}
+
+bool noHayHogaresRepetidos(eph_h th){
+    bool res = true;
+    for(int h=0; h < th.size() ; h++){
+        for (int j = h + 1; j <th.size() ; ++j) {
+            if(th[h][0] == th[j][0]) {
+                return res = false;
+            }
+        }
+    }
+    return res;
+}
+
+bool esMismoAnioYTrimestre(eph_h th, eph_i ti) {
+    bool res = true;
+    int anio = ti[0][INDANIO];
+    int trimestre = ti[0][INDTRIMESTRE];
+    for (int i = 1; i < ti.size(); ++i) {
+        if (ti[i][INDTRIMESTRE] != trimestre || ti[i][INDANIO] != anio){
+            res = false;
+            return res;
+        }
+    }
+    for (int h = 0; h < th.size(); ++h) {
+        if (th[h][HOGANIO] != anio || th[h][HOGTRIMESTRE] != trimestre) {
+            res = false;
+            return res;
+        }
+    }
+    return res;
+}
+
+bool menosDe21MiembrosPorHogar(eph_h th, eph_i ti){
+    bool res = true;
+    for(int h=0; h < th.size(); h++){
+        if(cantidadDeHabitantes(th[h], ti) >20){
+            return res = false;}
+    }
+    return res;
+}
+
+bool cantidadValidaDormitorios(eph_h th){
+    bool res = true;
+    for(int h=0; h < th.size(); h++) {
+        if (th[h][IV2] < th[h][II2]) {
+            return res = false;
+        }
+    }
+    return res;
+}
+
+bool esRegionValida(hogar h){
+    bool res = false;
+    if(h[REGION] == 1 || (40 <= h[REGION] && h[REGION] <= 44)) {
+        res = true;
+    }
+    return res;
+}
+
+
+bool losValoresEstanEnRangoH(eph_h th){
+    bool res = true;
+    for(int h=0; h < th.size(); h++){
+        if(th[h][HOGCODUSU] <= 0 || th[h][HOGTRIMESTRE] < 1 || th[h][HOGTRIMESTRE] > 4 || th[h][II7] < 1 || th[h][II7] > 3
+           || !esRegionValida(th[h]) || th[h][MAS_500] < 0 || th[h][MAS_500] > 1 || th[h][IV1] < 1 || th[h][IV1] > 5 ||
+           th[h][IV2] < 1 || th[h][II2] < 1 || th[h][II3] < 1 || th[h][II3] > 2){
+            return res = false;
+        }
+    }
+    return res;
+}
+
+bool esIngresoValido(individuo i){
+    bool res = false;
+    if(i[p47T] >= -1){
+        res = true;
+    }
+    return res;
+}
+
+bool losValoresEstanEnRangoI(eph_i ti){
+    bool res = true;
+    for(int i=0; i < ti.size(); i++){
+        if(ti[i][INDCODUSU] <= 0 || ti[i][COMPONENTE] <= 0 || ti[i][INDTRIMESTRE] < 1 || ti[i][INDTRIMESTRE] > 4 ||
+           ti[i][CH4] < 1 || ti[i][CH4] > 2 || ti[i][CH6] < 0 || ti[i][NIVEL_ED] < 0 || ti[i][NIVEL_ED] > 1 ||
+           ti[i][ESTADO] < -1 || ti[i][ESTADO] > 1 || ti[i][CAT_OCUP] < 0 || ti[i][CAT_OCUP] > 4 || !esIngresoValido(ti[i])
+           || ti[i][PP04G] < 0 || ti[i][PP04G] > 10){
+            return res = false;
+        }
+    }
+    return res;
+}
+
+bool esSuHogar (hogar h, individuo i){
+    bool resp = false;
+    if (h[HOGCODUSU] == i[INDCODUSU]){
+        resp = true;
+    }
+    return resp;
+
+}
+
+int cantidadDeHabitantes (hogar h, eph_i ti){
+    int contador = 0;
+    for (int i = 0; i < ti.size(); ++i) {
+        if (esSuHogar(h,ti[i])){
+            contador++;
+        }
+    }
+    return contador;
+}
+
+
+
+bool esValida(eph_h th, eph_i ti){
+    bool res = true;
+    if(th.size() == 0 || ti.size() == 0 || !esMatriz(th) || !esMatriz(ti) || !esCantidadCorrectaDeColumnasH(th)
+       || !esCantidadCorrectaDeColumnasI(ti) || !noHayIndividuosSinHogares(ti, th) || !noHayIndividuosSinHogares(th, ti)
+       || !noHayHogaresSinIndividuos(th, ti) || !noHayHogaresRepetidos(th) || !noHayIndividuosRepetidos(ti) ||
+       !esMismoAnioYTrimestre(th, ti) || !menosDe21MiembrosPorHogar(th, ti) || !cantidadValidaDormitorios(th) ||
+       !losValoresEstanEnRangoI(ti) || !losValoresEstanEnRangoH(th)){
+
+        res = false;
+    }
+    return res;
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//AUXILIARES PARA histHabitacional DEL PUNTO 2:
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+int cantidadMaximadeHabitacionesEnRegionDada (eph_h th, int region){
+    int res = 0;
+    for (int i = 0; i < th.size(); i++){
+        if (th[i][REGION] == region && th[i][IV1] == 1 && th[i][IV2] > res){
+
+            res = th[i][IV2];
+
+        }
+    }
+    return res;
+}
+
+int cantidadCasasConiHabitacionesEnRegionDada (eph_h th, int region, int k){
+    int res = 0;
+    for (int i = 0; i < th.size(); i++){
+        if (th[i][REGION] == region && th[i][IV1] == 1 && th[i][IV2] == k){
+            res++;
+        }
+    }
+    return res;
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//AUXILIARES PARA laCasaEstaQuedandoChica DEL PUNTO 3:
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+bool esHogarConHacinamientoCritico(hogar h, eph_i ti){
+    bool res = false;
+    if(cantidadDeHabitantes(h, ti) > 3*h[II2] ){
+        res = true;
+    }
+    return res;
+}
+
+bool esHogarValido (hogar h, dato region){
+    if (h[IV1]==1 && h[REGION]==region && h[MAS_500]==0){
+        return true;
+    } else {
+        return false;
+    }
+}
+
+float cantidadDeHogaresValidos(eph_h th, dato region){
+    float res = 0;
+    for (int h = 0; h < th.size(); ++h) {
+        if (esHogarValido(th[h], region)){
+            res++;
+        }
+    }
+    return res;
+}
+
+float cantidadDeHogaresValidosConHC(eph_h th, eph_i ti, int region){
+    float res = 0;
+    for(int h=0; h < th.size(); h++){
+        if(esHogarValido(th[h],region) && esHogarConHacinamientoCritico (th[h], ti)){
+            res++;
+        }
+    }
+    return res;
+}
+
+float proporcionHogaresConHC(eph_h th, eph_i ti, dato region){
+    float res = 0;
+    if (cantidadDeHogaresValidos(th,region) > 0){
+        res = cantidadDeHogaresValidosConHC(th, ti, region) / cantidadDeHogaresValidos(th, region);
+    }
+    return res;
+}
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//AUXILIARES PARA proporcionTeleworking DEL PUNTO 4:
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+bool esCasaODepartamento (hogar h) {
+    bool res = false;
+    if (h[IV1] == 1 || h[IV1] == 2){
+        res = true;
+    }
+    return res;
+}
+
+bool trabaja (individuo i){
+    bool res = i[ESTADO] == 1;
+    return res;
+}
+
+bool suHogarEsCasaODepartamento(individuo i, eph_h th){
+    bool res = false;
+    for (int h = 0; h < th.size(); ++h) {
+        if (esSuHogar(th[h],i) && esCasaODepartamento (th[h])){
+            res = true;
+            return res;
+        }
+    }
+    return res;
+}
+
+bool esDeCiudadGrande (individuo i, eph_h th){
+    bool res = false;
+    for (int h = 0; h < th.size(); ++h) {
+        if (esSuHogar(th[h],i) && th[h][MAS_500] == 1){
+            res = true;
+            return res;
+        }
+    }
+    return res;
+}
+
+bool individuoEnHogarValido (individuo i, eph_h th){
+    bool res = false;
+    if (esDeCiudadGrande (i,th) && suHogarEsCasaODepartamento(i,th)){
+        res = true;
+    }
+    return res;
+}
+
+float cantIndividuosQueTrabajan (eph_h th, eph_i ti) {
+    float contador = 0;
+    for (int i = 0; i < ti.size(); ++i) {
+        if (trabaja(ti[i]) && individuoEnHogarValido(ti[i], th)){
+            contador ++;
+        }
+    }
+    return contador;
+}
+
+bool tieneEspaciosReservadosParaElTrabajo(hogar h){
+    bool resp = false;
+    if (h[II3] == 1){
+        resp = true;
+    }
+    return resp;
+}
+
+bool suHogarTieneEspaciosReservadosParaElTrabajo(individuo i, eph_h th){
+    bool resp = false;
+    for (int h = 0; h < th.size() ; ++h) {
+        if (esSuHogar(th[h],i) && tieneEspaciosReservadosParaElTrabajo(th[h])){
+            resp = true;
+            return resp;
+        }
+    }
+    return resp;
+}
+
+bool realizaSusTareasEnEsteHogar(individuo i){
+    bool resp = false;
+    if (i[PP04G] == 6){
+        resp = true;
+    }
+    return resp;
+}
+
+bool trabajaEnSuVivienda (individuo i, eph_h th){
+    bool resp = false;
+    if(realizaSusTareasEnEsteHogar(i) && suHogarTieneEspaciosReservadosParaElTrabajo(i, th)){
+        resp = true;
+    }
+    return resp;
+}
+
+float cantIndividuosTrabajandoEnSuVivienda (eph_h th, eph_i ti) {
+    float contador = 0;
+    for (int i = 0; i < ti.size(); ++i) {
+        if (trabaja (ti[i]) && individuoEnHogarValido (ti[i], th) && trabajaEnSuVivienda(ti[i],th)){
+            contador++;
+        }
+    }
+    return contador;
+}
+
+float proporcionTeleworking (eph_h th, eph_i ti) {
+    float resp = 0;
+    if (cantIndividuosQueTrabajan (th,ti)>0){
+        resp = (cantIndividuosTrabajandoEnSuVivienda (th,ti) )/ (cantIndividuosQueTrabajan (th,ti));
+    }
+    return resp;
+}
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//AUXILIARES PARA costoSubsidioMejora DEL PUNTO 5:
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+bool tieneCasaPropia (hogar h){
+    bool resp = false;
+    return resp = h[II7] == 1;
+}
+
+bool tieneCasaChica (hogar h, eph_i ti){
+    bool resp = false;
+    if ((cantidadDeHabitantes(h, ti) -2) > h[II2]){
+        resp = true;
+    }
+    return resp;
+}
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//AUXILIARES PARA ordenarRegionYCODUSU DEL PUNTO 7:
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+void ordenarPorCodusuTh(eph_h &th){
+    for (int j = 0; j < th.size(); j++){
+        for (int i = 0; i < th.size()-1; i++){
+            if (th[i][HOGCODUSU] > th[i+1][HOGCODUSU]){
+                hogar temp;
+                temp = th[i];
+                th[i] = th[i+1];
+                th[i+1] = temp;
+            }
+        }
+    }
+}
+
+void ordenarPorRegiones(eph_h &th){
+    for (int j = 0; j < th.size(); j++){
+        for (int i = 0; i < th.size()-1; i++){
+            if (th[i][REGION] > th[i+1][REGION]){
+                hogar temp;
+                temp = th[i];
+                th[i] = th[i+1];
+                th[i+1] = temp;
+            }
+        }
+    }
+}
+
+void ordenarPorComponenteTi (eph_i &ti){
+    for (int j = 0; j < ti.size(); j++){
+        for (int i = 0; i < ti.size()-1; i++){
+            if (ti[i][COMPONENTE] > ti[i+1][COMPONENTE]){
+                individuo temp;
+                temp = ti[i];
+                ti[i] = ti[i+1];
+                ti[i+1] = temp;
+            }
+        }
+    }
+}
+
+vector < int > listaDeHogcodususOrdenados (eph_h th){
+    vector <int> result;
+    for (int i = 0; i < th.size(); i++) {
+        if (!perteneceAlVector(result,th[i][HOGCODUSU])) {
+            result.push_back(th[i][HOGCODUSU]);
+        }
+    }
+    return result;
+}
+
+bool perteneceAlVector(vector <int> v, int n){
+    bool result = false;
+    for (int i = 0; i < v.size(); i++){
+        if (v[i] == n){
+            result = true;
+        }
+    }
+    return result;
+}
+
+bool primerCodusuEstaAntes (dato primer, dato segundo, vector <int> l){
+    bool res = false;
+    int i = 0;
+    int j = 0;
+    for (; i < l.size(); i++){
+        if (l[i] == primer){
+            break;
+        }
+    }
+    for (;j < l.size(); j++){
+        if (l[j] == segundo){
+            break;
+        }
+    }
+    if ( i < j){
+        res = true;
+    }
+    return res;
+}
+
+void ordenarPorCODUSUTi (eph_i &ti, const vector <int> lista){
+    for (int j = 0; j < ti.size() ; j++) {
+        for (int i = 0; i < ti.size() - 1; i++){
+            if (primerCodusuEstaAntes(ti[i+1][HOGCODUSU], ti[i][HOGCODUSU], lista)) {
+                individuo temp;
+                temp = ti[i];
+                ti[i] = ti[i + 1];
+                ti[i + 1] = temp;
+            }
+        }
+    }
+
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//AUXILIARES PARA muestraHomogenea DEL PUNTO 8:
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+int ingresosHogar (eph_i ti, int hogcodusu){
+    int ingresosHogar = 0;
+    for (int i = 0; i < ti.size(); i++){
+        if (ti[i][INDCODUSU] == hogcodusu && ti[i][p47T] != -1){
+            ingresosHogar = ingresosHogar + ti[i][p47T];
+        }
+    }
+    return ingresosHogar;
+}
+
+vector <pair<int,int>> listaHogaresConIngresos (eph_h th, eph_i ti){
+    vector <pair<int,int>> v;
+    for (int i = 0; i < th.size(); i++){
+        pair <int,int> temp;
+        temp.first = th[i][HOGCODUSU];
+        temp.second = ingresosHogar(ti,th[i][HOGCODUSU]);
+        v.push_back(temp);
+    }
+    return v;
+}
+
+void ordenarHogaresPorIngresos (vector <pair<int,int>> &l){
+    for (int j = 0; j < l.size(); j++) {
+        for (int i = 0; i < l.size() - 1; i++) {
+            if (l[i].second > l[i + 1].second) {
+                pair<int, int> temp;
+                temp = l[i];
+                l[i] = l[i + 1];
+                l[i + 1] = temp;
+            }
+        }
+    }
+}
+
+vector<int> listaDeHogaresOptimos (vector <pair<int,int>> listaIngresos) {
+    vector<int> listaDePosicionesMayor;
+    vector<int> listaDePosicionesTemporal;
+    for (int k = 0; k < listaIngresos.size() - 1; ++k) {
+        for (int m = k + 1; m < listaIngresos.size(); ++m) {
+            listaDePosicionesTemporal = {k, m};
+            int diferencia = listaIngresos[m].second - listaIngresos[k].second;
+            for (int n = m + 1; n < listaIngresos.size(); ++n) {
+                                                                // v ultima Posicion Guardada en listaDePosicionesTemporales
+                if (listaIngresos[n].second - listaIngresos[listaDePosicionesTemporal[listaDePosicionesTemporal.size() - 1]].second ==
+                    diferencia && diferencia != 0) {
+                    listaDePosicionesTemporal.push_back(n);
+                } 
+            }
+                if (listaDePosicionesTemporal.size() > listaDePosicionesMayor.size()) {
+                    listaDePosicionesMayor = listaDePosicionesTemporal;
+                }
+        }
+    }
+        vector<int> listaHogcodusu;
+        for (int i = 0; i < listaDePosicionesMayor.size(); ++i) {
+            for (int j = 0; j < listaIngresos.size(); ++j) {
+                if (listaDePosicionesMayor[i] == j) {
+                    listaHogcodusu.push_back(listaIngresos[j].first);
+                    break;
+
+                }
+            }
+        }
+        return listaHogcodusu;
+}
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//AUXILIARES PARA corregirRegion DEL PUNTO 9:
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+void cambiaRegionGBAaPampeana(eph_h &th){
+    for(int h=0; h < th.size(); h++){
+        if(th[h][REGION] == GBA){
+            th[h][REGION] = PAMPEANA;
+        }
     }
 }
 
 
-// Auxiliares problema 10
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//AUXILIARES PARA histogramaDeAnillosConcentricos DEL PUNTO 10:
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-bool individuoMatcheaBusqueda(individuo &individuo, vector<pair<int, dato>> &busqueda) {
-    bool res = true;
-    for (int i = 0; i < busqueda.size() && res; i++) {
-        if (individuo[busqueda[i].first] != busqueda[i].second) {
-            res = false;
+int cuadrado(int a){
+    int b;
+    return b = a*a;
+}
+
+float distanciaEuclideana(pair < float, float > centro, float latitud, float longitud){
+    float res;
+    return res = sqrt(cuadrado(centro.first - latitud) + cuadrado(centro.second - longitud));
+}
+
+bool estaElHogarEnAnillo(int distDesde, int distHasta, pair < int, int > centro, hogar hog){
+    bool res = false;
+    if(distDesde < distanciaEuclideana(centro, hog[HOGLATITUD], hog[HOGLONGITUD]) &&
+       distanciaEuclideana(centro, hog[HOGLATITUD], hog[HOGLONGITUD]) <= distHasta){
+        res = true;
+    }
+    return res;
+}
+
+int cantidadDeHogaresPorAnillo(int distDesde, int distHasta, pair < int, int > centro, eph_h th){
+    int res = 0;
+    for(int k=0; k < th.size(); k++){
+        if(estaElHogarEnAnillo(distDesde, distHasta, centro, th[k])){
+            res = res + 1;
         }
     }
     return res;
 }
 
 
-// Auxiliares problema 11
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//AUXILIARES PARA quitarIndividuos DEL PUNTO 11:
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-float distanciaEuclideana(pair<int, int> p1, pair<int, int> p2) {
-    float a = p1.first - p2.first;
-    float b = p1.second - p2.second;
-    return sqrt(a * a + b * b);
+bool cumpleBusqueda(individuo ind, vector <pair <int,dato> > busqueda){
+    bool res = true;
+    for(int b=0; b < busqueda.size(); b++){
+        if (ind[busqueda[b].first] != busqueda[b].second){
+            return res = false;
+        }
+    }
+    return res;
+}
+
+vector< vector<int> > tablaIndividuos(eph_i ti, vector <pair <int,dato> > busqueda){
+
+    vector< vector<int> > tablaI;
+    for(int i=0; i < ti.size(); i++){
+        if (cumpleBusqueda(ti[i], busqueda)){
+            tablaI.push_back(ti[i]);
+        }
+    }
+    return tablaI;
+}
+
+vector< vector<int> > tablaHogares(eph_h th, eph_i ti, vector <pair <int,dato> > busqueda){
+    vector< vector<int> > tablaH;
+    vector<vector<int>> tablaI = tablaIndividuos(ti, busqueda);
+    for(int h=0; h < th.size(); h++){
+        for(int i=0; i < tablaI.size(); i++){
+            if(tablaI[i][INDCODUSU] == th[h][HOGCODUSU]){
+                tablaH.push_back(th[h]);
+                break;
+            }
+        }
+    }
+    return tablaH;
+}
+
+vector< vector<int> > restoDeTablaIndividuos(eph_i ti,  vector <pair <int,dato> > busqueda){
+    vector< vector<int> > tablaIR;
+
+    for(int i=0; i < ti.size(); i++){
+        if (!cumpleBusqueda(ti[i], busqueda)){
+            tablaIR.push_back(ti[i]);
+        }
+    }
+    return tablaIR;
+}
+
+vector< vector<int> > restoDeTablaHogares(eph_h th, eph_i ti,  vector <pair <int,dato> > busqueda){
+    vector< vector<int> > tablaHR;
+    vector<vector<int>> tablaI = restoDeTablaIndividuos(ti, busqueda);
+    for(int h=0; h < th.size(); h++) {
+        for (int i = 0; i < tablaI.size(); i++){
+            if (tablaI[i][INDCODUSU] == th[h][HOGCODUSU]) {
+                tablaHR.push_back(th[h]);
+                break;
+            }
+        }
+    }
+    return tablaHR;
 }

@@ -9,13 +9,14 @@ include_directories(lib/googletest-master/googletest/include)
 
 file(GLOB DIR_TESTS_EN "test/*.cpp")
 
-set(SOURCE_FILES
-    main.cpp
-    auxiliares.cpp
-    ejercicios.cpp
-    Funciones_TPI.cpp)
+set(SOURCE_FILES main.cpp
+        auxiliares.cpp
+        ejercicios.cpp
+        Funciones_TPI.cpp)
 
-add_executable(tpi ${SOURCE_FILES} ${DIR_TESTS_EN})
+add_executable(tpi ${SOURCE_FILES}
+        ${DIR_TESTS_EN}
+        )
 
 set(CMAKE_CXX_FLAGS "-g --coverage")
 set(CMAKE_CXX_OUTPUT_EXTENSION_REPLACE 1)
