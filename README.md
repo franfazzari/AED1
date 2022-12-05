@@ -18,10 +18,7 @@ Este repositorio está incompleto porque no hice todas las prácticas / laborato
 
 - Parciales
 
-  - Mis parciales
-    - [AED1-P1-2021-10-15](Parciales/AED1-P1-2021-10-15/AED1-P1-2021-10-15.pdf)
-    - [AED1-P2-2021-11-19](Parciales/AED1-P2-2021-11-19)
-  - Otros parciales resueltos
+  - Parciales resueltos
     - [AED1-P1-2020-10-21](Parciales/AED1-P1-2020-10-21)
     - [AED1-P1-2020-11-27](Parciales/AED1-P1-2020-11-27)
     - [AED1-P1-2021-05-19](Parciales/AED1-P1-2021-05-19)
